@@ -17,6 +17,7 @@ pad_y = 122
 pad_w = 24
 pad_h = 2
 pad_speed_x = 0 
+pad_col = 7
 
 function _init()
 	cls()
@@ -50,6 +51,7 @@ function _update()
 	ball_x += ball_speed_x
 	ball_y += ball_speed_y
 	ball_col += 1	
+
 	if ball_x> 126 or ball_x < 1 then
 		ball_speed_x = -ball_speed_x
 		sfx(0)
@@ -59,12 +61,35 @@ function _update()
 		ball_speed_y = -ball_speed_y
 		sfx(0)
 	end
+
+	pad_col = 7
+	-- check paddle collision
+	if is_ball_collide(pad_x,pad_y,pad_w,pad_h) then
+		pad_col = 8
+	end
 end
 
 function _draw()
 	rectfill(0,0,127,127,1)
-	rectfill(pad_x,pad_y,pad_x+pad_w,pad_y+pad_h,6)
+	rectfill(pad_x,pad_y,pad_x+pad_w,pad_y+pad_h,pad_col)
 	circfill(ball_x,ball_y,ball_r,ball_col)
+end
+
+function is_ball_collide(box_x,box_y,box_w,box_h)
+	if ball_y - ball_r > box_y + box_h then
+		return false
+	end
+	if ball_y + ball_r < box_y then
+		return false
+	end
+	if ball_x - ball_r > box_x + box_w then
+		return false
+	end
+	if ball_x + ball_r < box_x then
+		return false
+	end
+
+	return true
 end
 
 
