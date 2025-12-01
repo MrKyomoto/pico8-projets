@@ -17,13 +17,15 @@ function _init()
 	pad_x = 52
 	pad_y = 122
 	pad_w = 24
-	pad_h = 2
+	pad_h = 3
 	pad_speed_x = 0
 	pad_col = 7
 end
 
 function _update()
 	local btn_pressed = false
+	local next_x, next_y
+
 	if btn(0) then
 		-- left
 		pad_speed_x = -5
@@ -47,27 +49,46 @@ function _update()
 		pad_x = 126 - pad_w
 	end
 
-	ball_x += ball_speed_x
-	ball_y += ball_speed_y
+	next_x = ball_x + ball_speed_x
+	next_y = ball_y + ball_speed_y
 	ball_col += 1
 
-	if ball_x > 126 or ball_x < 1 then
+	if next_x + ball_r > 127 then 
 		ball_speed_x = -ball_speed_x
 		sfx(1)
+		next_x = 127 - ball_r
+	elseif next_x - ball_r < 0 then
+		ball_speed_x = -ball_speed_x
+		sfx(1)
+		next_x = ball_r
 	end
 
-	if ball_y > 126 or ball_y < 1 then
+	if next_y + ball_r > 127 then 
 		ball_speed_y = -ball_speed_y
 		sfx(1)
+		next_y = 127 - ball_r
+	elseif next_y - ball_r < 0 then
+		ball_speed_y = -ball_speed_y
+		sfx(1)
+		next_y = ball_r
 	end
 
 	pad_col = 7
 	-- check paddle collision
-	if is_ball_collide(pad_x, pad_y, pad_w, pad_h) then
+	if is_ball_collide(next_x, next_y,pad_x, pad_y, pad_w, pad_h) then
 		pad_col = 8
-		ball_speed_y = -ball_speed_y
+		-- find out the collision direction
+		if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,pad_x,pad_y,pad_w,pad_h) then
+			ball_speed_x = -ball_speed_x
+		else
+			ball_speed_y = -ball_speed_y
+		end
 		sfx(0)
 	end
+
+	ball_x = next_x
+	ball_y = next_y
+	ball_col += 1
 end
 
 function _draw()
@@ -76,7 +97,7 @@ function _draw()
 	circfill(ball_x, ball_y, ball_r, ball_col)
 end
 
-function is_ball_collide(box_x, box_y, box_w, box_h)
+function is_ball_collide(ball_x, ball_y, box_x, box_y, box_w, box_h)
 	if ball_y - ball_r > box_y + box_h then
 		return false
 	end
@@ -91,6 +112,69 @@ function is_ball_collide(box_x, box_y, box_w, box_h)
 	end
 
 	return true
+end
+
+function find_collision_direction(bx, by, bdx, bdy, tx, ty, tw, th)
+    -- 修正1：加入球半径，用球边缘代替球心计算
+    local ball_edge_x = bx + (bdx > 0 and ball_r or -ball_r)
+    local ball_edge_y = by + (bdy > 0 and ball_r or -ball_r)
+    bx = ball_edge_x
+    by = ball_edge_y
+
+    if bdx == 0 then
+        return false
+    elseif bdy == 0 then
+        return true
+    else
+        local slope = bdy / bdx
+        local cx, cy
+        if slope > 0 and bdx > 0 then
+            cx = tx - bx
+            cy = ty - by
+            if cx <= 0 then
+                return false
+            -- 修正2：判定条件取反
+            elseif cy / cx > slope then 
+                return true
+            else
+                return false
+            end
+        elseif slope < 0 and bdx > 0 then
+            cx = tx - bx
+            cy = ty + th - by
+            if cx <= 0 then
+                return false
+            -- 修正2：判定条件取反
+            elseif cy / cx > slope then
+                return true
+            else
+                return false
+            end
+        elseif slope > 0 and bdx < 0 then
+            cx = tx + tw - bx
+            cy = ty + th - by
+            if cx >= 0 then
+                return false
+            -- 修正2：判定条件取反
+            elseif cy / cx < slope then
+                return true
+            else
+                return false
+            end
+        else
+            cx = tx + tw - bx
+            cy = ty - by
+            if cx >= 0 then
+                return false
+            -- 修正2：判定条件取反
+            elseif cy / cx > slope then
+                return true
+            else
+                return false
+            end
+        end
+    end
+    return false
 end
 
 __gfx__
