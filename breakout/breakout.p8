@@ -1,41 +1,40 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
--- NOTE: ball param
-ball_x = 1
-ball_y = 1
-
-ball_speed_x = 2
-ball_speed_y = 1.5 
-
-ball_r = 2
-ball_col = 0
-
--- NOTE: pad param
-pad_x = 52
-pad_y = 122
-pad_w = 24
-pad_h = 2
-pad_speed_x = 0 
-pad_col = 7
-
 function _init()
 	cls()
+	-- NOTE: ball param
+	ball_x = 1
+	ball_y = 1
+
+	ball_speed_x = 2.5
+	ball_speed_y = 2
+
+	ball_r = 2
+	ball_col = 0
+
+	-- NOTE: pad param
+	pad_x = 52
+	pad_y = 122
+	pad_w = 24
+	pad_h = 2
+	pad_speed_x = 0
+	pad_col = 7
 end
 
 function _update()
-	btn_pressed = false
+	local btn_pressed = false
 	if btn(0) then
-	-- left
+		-- left
 		pad_speed_x = -5
 		btn_pressed = true
 	end
 	if btn(1) then
-	-- right
+		-- right
 		pad_speed_x = 5
 		btn_pressed = true
 	end
-	if not(btn_pressed) then
+	if not btn_pressed then
 		pad_speed_x /= 1.7
 	end
 
@@ -50,32 +49,34 @@ function _update()
 
 	ball_x += ball_speed_x
 	ball_y += ball_speed_y
-	ball_col += 1	
+	ball_col += 1
 
-	if ball_x> 126 or ball_x < 1 then
+	if ball_x > 126 or ball_x < 1 then
 		ball_speed_x = -ball_speed_x
-		sfx(0)
+		sfx(1)
 	end
 
 	if ball_y > 126 or ball_y < 1 then
 		ball_speed_y = -ball_speed_y
-		sfx(0)
+		sfx(1)
 	end
 
 	pad_col = 7
 	-- check paddle collision
-	if is_ball_collide(pad_x,pad_y,pad_w,pad_h) then
+	if is_ball_collide(pad_x, pad_y, pad_w, pad_h) then
 		pad_col = 8
+		ball_speed_y = -ball_speed_y
+		sfx(0)
 	end
 end
 
 function _draw()
-	rectfill(0,0,127,127,1)
-	rectfill(pad_x,pad_y,pad_x+pad_w,pad_y+pad_h,pad_col)
-	circfill(ball_x,ball_y,ball_r,ball_col)
+	rectfill(0, 0, 127, 127, 1)
+	rectfill(pad_x, pad_y, pad_x + pad_w, pad_y + pad_h, pad_col)
+	circfill(ball_x, ball_y, ball_r, ball_col)
 end
 
-function is_ball_collide(box_x,box_y,box_w,box_h)
+function is_ball_collide(box_x, box_y, box_w, box_h)
 	if ball_y - ball_r > box_y + box_h then
 		return false
 	end
@@ -92,7 +93,6 @@ function is_ball_collide(box_x,box_y,box_w,box_h)
 	return true
 end
 
-
 __gfx__
 00000000000666600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000006606660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -103,3 +103,4 @@ __gfx__
 00000000666000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 000100003c0503805034050310502e0502a050270502505023050220501f0501b0501705014050100500d0500b0500005007000050000200001000000000a0000900007000060000400003000020000200002000
+000100001c0601805014040120400f0400d0400b03009030080300403000020170000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
