@@ -81,6 +81,18 @@ function update_game()
 		sfx(0)
 	end
 
+	if brick_v and is_ball_collide(next_x, next_y,brick_x, brick_y, brick_w, brick_h) then
+		-- find out the collision direction
+		if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,brick_x,brick_y,brick_w,brick_h) then
+			ball_speed_x = -ball_speed_x
+		else
+			ball_speed_y = -ball_speed_y
+		end
+		brick_v = false
+		score += 10
+		sfx(3)
+	end
+
 	ball_x = next_x
 	ball_y = next_y
 	ball_col += 1
@@ -90,6 +102,8 @@ function update_game()
 		hp -= 1	
 		if hp == 0 then
 			gameover()
+		else
+			score -= min(score,20)
 		end
 		relaunch_ball()
 	end
@@ -109,8 +123,6 @@ function update_menu()
 	end
 end
 function start_game()
-	relaunch_ball()
-
 	ball_r = 2
 	ball_col = 0
 
@@ -122,11 +134,20 @@ function start_game()
 	pad_speed_x = 0
 	pad_col = 7
 
+	brick_x = 50
+	brick_y = 20
+	brick_w = 10
+	brick_h = 4
+	brick_v = true
+
 	bar_h = 6
 
 	hp = 3
 	score = 0
 	state = "game"	
+
+	relaunch_ball()
+
 end
 function update_gameover()
 	if btn(5) then
@@ -148,6 +169,11 @@ end
 function draw_game()
 	cls(1)
 	rectfill(pad_x, pad_y, pad_x + pad_w, pad_y + pad_h, pad_col)
+	-- draw bricks
+	if brick_v then
+		rectfill(brick_x, brick_y, brick_x + brick_w, brick_y + brick_h, 14)
+	end
+
 	circfill(ball_x, ball_y, ball_r, ball_col)
 	rectfill(0, 0, 128, bar_h, 0)
 	print("♥:"..hp,0,0,2)
@@ -256,3 +282,4 @@ __sfx__
 000100003c0503805034050310502e0502a050270502505023050220501f0501b0501705014050100500d0500b0500005007000050000200001000000000a0000900007000060000400003000020000200002000
 000100001c0601805014040120400f0400d0400b03009030080300403000020170000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000500002a45026450214501d4501a45017450134500f4500c4500945006450004500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0003000015050170501a0501d050230502c0503405016000180001a0001c0001f0002300028000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
