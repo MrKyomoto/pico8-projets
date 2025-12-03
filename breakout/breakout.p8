@@ -20,9 +20,7 @@ function gameover()
 end
 
 function update_game()
-	if hp == 0 then
-		gameover()
-	end
+
 	local btn_pressed = false
 	local next_x, next_y
 
@@ -79,6 +77,7 @@ function update_game()
 		else
 			ball_speed_y = -ball_speed_y
 		end
+		score += 1
 		sfx(0)
 	end
 
@@ -88,7 +87,10 @@ function update_game()
 
 	if next_y + ball_r > 127 then 
 		sfx(2)
-		hp -= 1
+		hp -= 1	
+		if hp == 0 then
+			gameover()
+		end
 		relaunch_ball()
 	end
 end
@@ -123,6 +125,7 @@ function start_game()
 	bar_h = 6
 
 	hp = 3
+	score = 0
 	state = "game"	
 end
 function update_gameover()
@@ -148,6 +151,7 @@ function draw_game()
 	circfill(ball_x, ball_y, ball_r, ball_col)
 	rectfill(0, 0, 128, bar_h, 0)
 	print("♥:"..hp,0,0,2)
+	print("score:"..score,40,0,2)
 end
 function draw_menu()
 	cls()
@@ -155,10 +159,9 @@ function draw_menu()
 	print("press ❎ to start",20,60,3)
 end
 function draw_gameover()
-	cls()
 	print("game 🐱 over",30,50,2)
 	print("press ❎ to restart",20,60,3)
-	print("press z to menu",20,70,3)
+	print("press z to menu",25,70,3)
 end
 
 function is_ball_collide(ball_x, ball_y, box_x, box_y, box_w, box_h)
