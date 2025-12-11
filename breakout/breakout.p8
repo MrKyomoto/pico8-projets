@@ -80,18 +80,21 @@ function update_game()
 		score += 1
 		sfx(0)
 	end
-
-	if brick_v and is_ball_collide(next_x, next_y,brick_x, brick_y, brick_w, brick_h) then
-		-- find out the collision direction
-		if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,brick_x,brick_y,brick_w,brick_h) then
-			ball_speed_x = -ball_speed_x
-		else
-			ball_speed_y = -ball_speed_y
+	local i
+	for i =1,#brick_x do
+		if brick_v[i] and is_ball_collide(next_x, next_y,brick_x[i], brick_y[i], brick_w, brick_h) then
+			-- find out the collision direction
+			if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,brick_x[i],brick_y[i],brick_w,brick_h) then
+				ball_speed_x = -ball_speed_x
+			else
+				ball_speed_y = -ball_speed_y
+			end
+			brick_v[i] = false
+			score += 10
+			sfx(3)
 		end
-		brick_v = false
-		score += 10
-		sfx(3)
 	end
+
 
 	ball_x = next_x
 	ball_y = next_y
@@ -134,13 +137,9 @@ function start_game()
 	pad_speed_x = 0
 	pad_col = 7
 
-	brick_x = 50
-	brick_y = 20
-	brick_w = 10
-	brick_h = 4
-	brick_v = true
-
 	bar_h = 6
+
+	build_bricks();
 
 	hp = 3
 	score = 0
@@ -148,6 +147,19 @@ function start_game()
 
 	relaunch_ball()
 
+end
+function build_bricks()
+	local i
+	brick_x = {}
+	brick_y = {}
+	brick_v = {}
+	brick_w = 10
+	brick_h = 4
+	for i = 1,9 do
+		add(brick_x,5 + (i-1) * (brick_w + 4));
+		add(brick_y,20);
+		add(brick_v,true);
+	end
 end
 function update_gameover()
 	if btn(5) then
@@ -168,10 +180,14 @@ function _draw()
 end
 function draw_game()
 	cls(1)
+	local i
 	rectfill(pad_x, pad_y, pad_x + pad_w, pad_y + pad_h, pad_col)
 	-- draw bricks
-	if brick_v then
-		rectfill(brick_x, brick_y, brick_x + brick_w, brick_y + brick_h, 14)
+
+	for i = 1,#brick_x do
+		if brick_v[i] then
+			rectfill(brick_x[i], brick_y[i], brick_x[i] + brick_w, brick_y[i] + brick_h, 14)
+		end
 	end
 
 	circfill(ball_x, ball_y, ball_r, ball_col)
