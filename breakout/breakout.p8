@@ -153,11 +153,11 @@ function build_bricks()
 	brick_x = {}
 	brick_y = {}
 	brick_v = {}
-	brick_w = 10
+	brick_w = 9
 	brick_h = 4
-	for i = 1,9 do
-		add(brick_x,5 + (i-1) * (brick_w + 4));
-		add(brick_y,20);
+	for i = 1,55 do
+		add(brick_x,4 + ( (i-1)%11 ) * (brick_w + 2));
+		add(brick_y,20 + flr( ( i-1 )/11 ) * (brick_h + 2));
 		add(brick_v,true);
 	end
 end
