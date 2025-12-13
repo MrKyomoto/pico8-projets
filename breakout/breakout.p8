@@ -230,58 +230,29 @@ function find_collision_direction(bx, by, bdx, bdy, tx, ty, tw, th)
     bx = ball_edge_x
     by = ball_edge_y
 
+    local slope = bdy / bdx
+    local cx, cy
+
     if bdx == 0 then
         return false
     elseif bdy == 0 then
         return true
+    elseif slope > 0 and bdx > 0 then
+      cx = tx - bx
+      cy = ty - by
+      return cx > 0 and cy / cx < slope
+    elseif slope < 0 and bdx > 0 then
+      cx = tx - bx
+      cy = ty + th - by
+      return cx > 0 and cy / cx >= slope
+    elseif slope > 0 and bdx < 0 then
+      cx = tx + tw - bx
+      cy = ty + th - by
+      return cx < 0 and cy / cx <= slope
     else
-        local slope = bdy / bdx
-        local cx, cy
-        if slope > 0 and bdx > 0 then
-            cx = tx - bx
-            cy = ty - by
-            if cx <= 0 then
-                return false
-            -- ノよなヒとこ2ヤもあハ☉さハなあヒえくノめへハ◆∧ハ◆♪
-            elseif cy / cx > slope then 
-                return true
-            else
-                return false
-            end
-        elseif slope < 0 and bdx > 0 then
-            cx = tx - bx
-            cy = ty + th - by
-            if cx <= 0 then
-                return false
-            -- ノよなヒとこ2ヤもあハ☉さハなあヒえくノめへハ◆∧ハ◆♪
-            elseif cy / cx > slope then
-                return true
-            else
-                return false
-            end
-        elseif slope > 0 and bdx < 0 then
-            cx = tx + tw - bx
-            cy = ty + th - by
-            if cx >= 0 then
-                return false
-            -- ノよなヒとこ2ヤもあハ☉さハなあヒえくノめへハ◆∧ハ◆♪
-            elseif cy / cx < slope then
-                return true
-            else
-                return false
-            end
-        else
-            cx = tx + tw - bx
-            cy = ty - by
-            if cx >= 0 then
-                return false
-            -- ノよなヒとこ2ヤもあハ☉さハなあヒえくノめへハ◆∧ハ◆♪
-            elseif cy / cx > slope then
-                return true
-            else
-                return false
-            end
-        end
+      cx = tx + tw - bx
+      cy = ty - by
+      return cx < 0 and cy / cx >= slope
     end
     return false
 end
