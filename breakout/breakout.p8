@@ -76,9 +76,18 @@ function update_game()
 		-- find out the collision direction
 		if find_collision_direction(ball_x, ball_y, ball_speed_x, ball_speed_y, pad_x, pad_y, pad_w, pad_h) then
 			ball_speed_x = -ball_speed_x
+			if ball_x < pad_x + pad_w / 2 then
+				next_x = pad_x - ball_r
+			else
+				next_x = pad_x + pad_w + ball_r
+			end
 		else
 			ball_speed_y = -ball_speed_y
-			next_y = pad_y - ball_r
+			if ball_y > pad_y then
+				next_y = pad_y + pad_h + ball_r
+			else
+				next_y = pad_y - ball_r
+			end
 		end
 		score += 1
 		sfx(0)
