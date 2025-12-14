@@ -78,6 +78,7 @@ function update_game()
 			ball_speed_x = -ball_speed_x
 		else
 			ball_speed_y = -ball_speed_y
+			next_y = pad_y - ball_r
 		end
 		score += 1
 		sfx(0)
