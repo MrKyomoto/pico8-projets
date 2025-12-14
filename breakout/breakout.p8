@@ -68,14 +68,18 @@ function update_game()
 	end
 
 	pad_col = 7
+	local brickhit = false
 	-- check paddle collision
 	if is_ball_collide(next_x, next_y,pad_x, pad_y, pad_w, pad_h) then
 		pad_col = 8
 		-- find out the collision direction
-		if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,pad_x,pad_y,pad_w,pad_h) then
-			ball_speed_x = -ball_speed_x
-		else
-			ball_speed_y = -ball_speed_y
+		if not(brickhit) then
+			if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,pad_x,pad_y,pad_w,pad_h) then
+				ball_speed_x = -ball_speed_x
+			else
+				ball_speed_y = -ball_speed_y
+			end
+			brickhit = true
 		end
 		score += 1
 		sfx(0)
