@@ -7,20 +7,22 @@ function _init()
 end
 
 function _update()
-	if state == "menu" then update_menu()
-	elseif state == "game" then update_game()
-	elseif state == "gameover" then update_gameover()
+	if state == "menu" then
+		update_menu()
+	elseif state == "game" then
+		update_game()
+	elseif state == "gameover" then
+		update_gameover()
 	end
 end
 
 function gameover()
-	state = "gameover"	
+	state = "gameover"
 	-- todo: add gameover sfx
 	sfx(1)
 end
 
 function update_game()
-
 	local btn_pressed = false
 	local next_x, next_y
 
@@ -51,7 +53,7 @@ function update_game()
 	next_y = ball_y + ball_speed_y
 	ball_col += 1
 
-	if next_x + ball_r > 127 then 
+	if next_x + ball_r > 127 then
 		ball_speed_x = -ball_speed_x
 		sfx(1)
 		next_x = 127 - ball_r
@@ -68,30 +70,31 @@ function update_game()
 	end
 
 	pad_col = 7
-	local brickhit = false
 	-- check paddle collision
-	if is_ball_collide(next_x, next_y,pad_x, pad_y, pad_w, pad_h) then
+	if is_ball_collide(next_x, next_y, pad_x, pad_y, pad_w, pad_h) then
 		pad_col = 8
 		-- find out the collision direction
-		if not(brickhit) then
-			if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,pad_x,pad_y,pad_w,pad_h) then
-				ball_speed_x = -ball_speed_x
-			else
-				ball_speed_y = -ball_speed_y
-			end
-			brickhit = true
+		if find_collision_direction(ball_x, ball_y, ball_speed_x, ball_speed_y, pad_x, pad_y, pad_w, pad_h) then
+			ball_speed_x = -ball_speed_x
+		else
+			ball_speed_y = -ball_speed_y
 		end
 		score += 1
 		sfx(0)
 	end
+
 	local i
-	for i =1,#brick_x do
-		if brick_v[i] and is_ball_collide(next_x, next_y,brick_x[i], brick_y[i], brick_w, brick_h) then
+	local brickhit = false
+	for i = 1, #brick_x do
+		if brick_v[i] and is_ball_collide(next_x, next_y, brick_x[i], brick_y[i], brick_w, brick_h) then
 			-- find out the collision direction
-			if find_collision_direction(ball_x,ball_y,ball_speed_x,ball_speed_y,brick_x[i],brick_y[i],brick_w,brick_h) then
-				ball_speed_x = -ball_speed_x
-			else
-				ball_speed_y = -ball_speed_y
+			if not brickhit then
+				if find_collision_direction(ball_x, ball_y, ball_speed_x, ball_speed_y, brick_x[i], brick_y[i], brick_w, brick_h) then
+					ball_speed_x = -ball_speed_x
+				else
+					ball_speed_y = -ball_speed_y
+				end
+				brickhit = true
 			end
 			brick_v[i] = false
 			score += 10
@@ -99,18 +102,17 @@ function update_game()
 		end
 	end
 
-
 	ball_x = next_x
 	ball_y = next_y
 	ball_col += 1
 
-	if next_y + ball_r > 127 then 
+	if next_y + ball_r > 127 then
 		sfx(2)
-		hp -= 1	
+		hp -= 1
 		if hp == 0 then
 			gameover()
 		else
-			score -= min(score,20)
+			score -= min(score, 20)
 		end
 		relaunch_ball()
 	end
@@ -122,7 +124,6 @@ function relaunch_ball()
 
 	ball_speed_x = 2.5
 	ball_speed_y = 2
-
 end
 function update_menu()
 	if btn(5) then
@@ -143,14 +144,13 @@ function start_game()
 
 	bar_h = 6
 
-	build_bricks();
+	build_bricks()
 
 	hp = 3
 	score = 0
-	state = "game"	
+	state = "game"
 
 	relaunch_ball()
-
 end
 function build_bricks()
 	local i
@@ -159,10 +159,10 @@ function build_bricks()
 	brick_v = {}
 	brick_w = 9
 	brick_h = 4
-	for i = 1,55 do
-		add(brick_x,4 + ( (i-1)%11 ) * (brick_w + 2));
-		add(brick_y,20 + flr( ( i-1 )/11 ) * (brick_h + 2));
-		add(brick_v,true);
+	for i = 1, 55 do
+		add(brick_x, 4 + ((i - 1) % 11) * (brick_w + 2))
+		add(brick_y, 20 + flr((i - 1) / 11) * (brick_h + 2))
+		add(brick_v, true)
 	end
 end
 function update_gameover()
@@ -174,12 +174,15 @@ function update_gameover()
 	end
 end
 function to_menu()
-	state = "menu"	
+	state = "menu"
 end
 function _draw()
-	if state == "menu" then draw_menu()
-	elseif state == "game" then draw_game()
-	elseif state == "gameover" then draw_gameover()
+	if state == "menu" then
+		draw_menu()
+	elseif state == "game" then
+		draw_game()
+	elseif state == "gameover" then
+		draw_gameover()
 	end
 end
 function draw_game()
@@ -188,7 +191,7 @@ function draw_game()
 	rectfill(pad_x, pad_y, pad_x + pad_w, pad_y + pad_h, pad_col)
 	-- draw bricks
 
-	for i = 1,#brick_x do
+	for i = 1, #brick_x do
 		if brick_v[i] then
 			rectfill(brick_x[i], brick_y[i], brick_x[i] + brick_w, brick_y[i] + brick_h, 14)
 		end
@@ -196,18 +199,18 @@ function draw_game()
 
 	circfill(ball_x, ball_y, ball_r, ball_col)
 	rectfill(0, 0, 128, bar_h, 0)
-	print("♥:"..hp,0,0,2)
-	print("score:"..score,40,0,2)
+	print("♥:" .. hp, 0, 0, 2)
+	print("score:" .. score, 40, 0, 2)
 end
 function draw_menu()
 	cls()
-	print("pico8 🐱 breakout",20,50,2)
-	print("press ❎ to start",20,60,3)
+	print("pico8 🐱 breakout", 20, 50, 2)
+	print("press ❎ to start", 20, 60, 3)
 end
 function draw_gameover()
-	print("game 🐱 over",30,50,2)
-	print("press ❎ to restart",20,60,3)
-	print("press z to menu",25,70,3)
+	print("game 🐱 over", 30, 50, 2)
+	print("press ❎ to restart", 20, 60, 3)
+	print("press z to menu", 25, 70, 3)
 end
 
 function is_ball_collide(ball_x, ball_y, box_x, box_y, box_w, box_h)
@@ -228,37 +231,37 @@ function is_ball_collide(ball_x, ball_y, box_x, box_y, box_w, box_h)
 end
 
 function find_collision_direction(bx, by, bdx, bdy, tx, ty, tw, th)
-    -- ノよなヒとこ1ヤもあハ⌂きハ✽しフ…⬇️ハ♪⌂ハゆ░ヤも😐フ⬆️そフ…⬇️ヘゆみフも▤ノめこヒいよフ…⬇️ハよ⬇️ヘなくフな❎
-    local ball_edge_x = bx + (bdx > 0 and ball_r or -ball_r)
-    local ball_edge_y = by + (bdy > 0 and ball_r or -ball_r)
-    bx = ball_edge_x
-    by = ball_edge_y
+	-- ノよなヒとこ1ヤもあハ⌂きハ✽しフ…⬇️ハ♪⌂ハゆ░ヤも😐フ⬆️そフ…⬇️ヘゆみフも▤ノめこヒいよフ…⬇️ハよ⬇️ヘなくフな❎
+	local ball_edge_x = bx + (bdx > 0 and ball_r or -ball_r)
+	local ball_edge_y = by + (bdy > 0 and ball_r or -ball_r)
+	bx = ball_edge_x
+	by = ball_edge_y
 
-    local slope = bdy / bdx
-    local cx, cy
+	local slope = bdy / bdx
+	local cx, cy
 
-    if bdx == 0 then
-        return false
-    elseif bdy == 0 then
-        return true
-    elseif slope > 0 and bdx > 0 then
-      cx = tx - bx
-      cy = ty - by
-      return cx > 0 and cy / cx < slope
-    elseif slope < 0 and bdx > 0 then
-      cx = tx - bx
-      cy = ty + th - by
-      return cx > 0 and cy / cx >= slope
-    elseif slope > 0 and bdx < 0 then
-      cx = tx + tw - bx
-      cy = ty + th - by
-      return cx < 0 and cy / cx <= slope
-    else
-      cx = tx + tw - bx
-      cy = ty - by
-      return cx < 0 and cy / cx >= slope
-    end
-    return false
+	if bdx == 0 then
+		return false
+	elseif bdy == 0 then
+		return true
+	elseif slope > 0 and bdx > 0 then
+		cx = tx - bx
+		cy = ty - by
+		return cx > 0 and cy / cx < slope
+	elseif slope < 0 and bdx > 0 then
+		cx = tx - bx
+		cy = ty + th - by
+		return cx > 0 and cy / cx >= slope
+	elseif slope > 0 and bdx < 0 then
+		cx = tx + tw - bx
+		cy = ty + th - by
+		return cx < 0 and cy / cx <= slope
+	else
+		cx = tx + tw - bx
+		cy = ty - by
+		return cx < 0 and cy / cx >= slope
+	end
+	return false
 end
 
 __gfx__
