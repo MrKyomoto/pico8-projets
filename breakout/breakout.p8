@@ -22,11 +22,10 @@ function gameover()
 	sfx(1)
 end
 
-function update_game()
+function update_paddle()
 	local btn_pressed = false
-	local next_x, next_y
 
-	if btn(0) then
+  if btn(0) then
 		-- left
 		pad_speed_x = -5
 		btn_pressed = true
@@ -48,11 +47,38 @@ function update_game()
 	if pad_x + pad_w > 126 then
 		pad_x = 126 - pad_w
 	end
+end
+
+function handle_bricks_collision(next_x, next_y)
+  local i
+	local brickhit = false
+	for i = 1, #brick_x do
+		if brick_v[i] and is_ball_collide(next_x, next_y, brick_x[i], brick_y[i], brick_w, brick_h) then
+			-- find out the collision direction
+			if not brickhit then
+				if find_collision_direction(ball_x, ball_y, ball_speed_x, ball_speed_y, brick_x[i], brick_y[i], brick_w, brick_h) then
+					ball_speed_x = -ball_speed_x
+				else
+					ball_speed_y = -ball_speed_y
+				end
+				brickhit = true
+			end
+			brick_v[i] = false
+			score += 10
+			sfx(3)
+		end
+	end
+end
+
+function calc_next_ball_pos()
+	local next_x, next_y
 
 	next_x = ball_x + ball_speed_x
 	next_y = ball_y + ball_speed_y
-	ball_col += 1
+  return next_x, next_y
+end
 
+function handle_wall_collision(next_x, next_y)
 	if next_x + ball_r > 127 then
 		ball_speed_x = -ball_speed_x
 		sfx(1)
@@ -68,7 +94,10 @@ function update_game()
 		sfx(1)
 		next_y = ball_r + bar_h
 	end
+  return next_x, next_y
+end
 
+function handle_pad_collision(next_x, next_y)
 	pad_col = 7
 	-- check paddle collision
 	if is_ball_collide(next_x, next_y, pad_x, pad_y, pad_w, pad_h) then
@@ -92,29 +121,21 @@ function update_game()
 		score += 1
 		sfx(0)
 	end
+  return next_x, next_y
+end
 
-	local i
-	local brickhit = false
-	for i = 1, #brick_x do
-		if brick_v[i] and is_ball_collide(next_x, next_y, brick_x[i], brick_y[i], brick_w, brick_h) then
-			-- find out the collision direction
-			if not brickhit then
-				if find_collision_direction(ball_x, ball_y, ball_speed_x, ball_speed_y, brick_x[i], brick_y[i], brick_w, brick_h) then
-					ball_speed_x = -ball_speed_x
-				else
-					ball_speed_y = -ball_speed_y
-				end
-				brickhit = true
-			end
-			brick_v[i] = false
-			score += 10
-			sfx(3)
-		end
-	end
+function update_game()
+  update_paddle()
+	local next_x, next_y = calc_next_ball_pos()
 
-	ball_x = next_x
+  next_x, next_y = handle_wall_collision(next_x,next_y)
+
+  next_x, next_y = handle_pad_collision(next_x,next_y)
+
+  handle_bricks_collision(next_x,next_y)
+
+  ball_x = next_x
 	ball_y = next_y
-	ball_col += 1
 
 	if next_y + ball_r > 127 then
 		sfx(2)
@@ -127,6 +148,7 @@ function update_game()
 		relaunch_ball()
 	end
 end
+
 function relaunch_ball()
 	-- NOTE: ball param
 	ball_x = 1
@@ -135,14 +157,16 @@ function relaunch_ball()
 	ball_speed_x = 2.5
 	ball_speed_y = 2
 end
+
 function update_menu()
 	if btn(5) then
 		start_game()
 	end
 end
+
 function start_game()
 	ball_r = 2
-	ball_col = 0
+	ball_col = 9
 
 	-- NOTE: pad param
 	pad_x = 52
@@ -162,6 +186,7 @@ function start_game()
 
 	relaunch_ball()
 end
+
 function build_bricks()
 	local i
 	brick_x = {}
@@ -175,6 +200,7 @@ function build_bricks()
 		add(brick_v, true)
 	end
 end
+
 function update_gameover()
 	if btn(5) then
 		start_game()
@@ -183,9 +209,11 @@ function update_gameover()
 		to_menu()
 	end
 end
+
 function to_menu()
 	state = "menu"
 end
+
 function _draw()
 	if state == "menu" then
 		draw_menu()
@@ -195,6 +223,7 @@ function _draw()
 		draw_gameover()
 	end
 end
+
 function draw_game()
 	cls(1)
 	local i
@@ -212,11 +241,13 @@ function draw_game()
 	print("♥:" .. hp, 0, 0, 2)
 	print("score:" .. score, 40, 0, 2)
 end
+
 function draw_menu()
 	cls()
 	print("pico8 🐱 breakout", 20, 50, 2)
 	print("press ❎ to start", 20, 60, 3)
 end
+
 function draw_gameover()
 	print("game 🐱 over", 30, 50, 2)
 	print("press ❎ to restart", 20, 60, 3)
